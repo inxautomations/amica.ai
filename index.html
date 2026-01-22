@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Amica</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Inter", "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      background: radial-gradient(circle at top, #0f2027, #000);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    /* ===== LOADING SCREEN ===== */
+    #loadingScreen {
+      position: fixed;
+      inset: 0;
+      background: black;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #loadingVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .chat-container {
+      width: 90vw;
+      max-width: 1200px;
+      height: 90vh;
+      background: rgba(20, 25, 40, 0.75);
+      backdrop-filter: blur(18px);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 40px rgba(0, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .chat-header {
+      padding: 20px;
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(90deg, #00e5ff, #6a5cff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 1.6rem;
+    }
+
+    .chat-body {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 14px 18px;
+      border-radius: 18px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      line-height: 1.4;
+      animation: fadeIn 0.2s ease-in;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .message:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 14px rgba(0, 229, 255, 0.25);
+    }
+
+    .ai {
+      background: rgba(0, 229, 255, 0.12);
+      color: #c9f7ff;
+      border-top-left-radius: 6px;
+    }
+
+    .user {
+      margin-left: auto;
+      background: linear-gradient(135deg, #6a5cff, #00e5ff);
+      color: #000;
+      border-top-right-radius: 6px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-footer {
+      padding: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    form {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 14px 18px;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-size: 14px;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    input:focus {
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.4);
+    }
+
+    button {
+      padding: 0 22px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      background: linear-gradient(135deg, #00e5ff, #6a5cff);
+      color: #000;
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(0, 229, 255, 0.8);
+    }
+
+    /* Green underlined Developer link */
+    .chat-body a {
+      color: #22c55e !important;
+      text-decoration: underline !important;
+      font-weight: 500;
+    }
+
+    .chat-body a:hover {
+      color: #4ade80 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- LOADING VIDEO -->
+  <div id="loadingScreen">
+    <video id="loadingVideo" autoplay muted playsinline>
+      <source src="loading.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <div class="chat-container" id="app">
+    <div class="chat-header">Amica</div>
+    <div class="chat-body" id="chatBody">
+      <div class="message ai">
+        Hello!<br/>
+        This is <strong>Amica</strong>.<br/>
+        How can I help you today?
+      </div>
+    </div>
+    <div class="chat-footer">
+      <form id="chatForm">
+        <input id="messageInput" type="text" placeholder="Ask Amica" required />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /* ===== CHAT SUBMIT LOGIC ===== */
+    const form = document.getElementById("chatForm");
+    const input = document.getElementById("messageInput");
+    const chatBody = document.getElementById("chatBody");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const message = input.value.trim();
+      if (!message) return;
+
+      // Add user message
+      addMessage(message, "user");
+      input.value = "";
+
+      // Add AI typing message
+      const typingMsg = addMessage("Typing", "ai");
+      let dots = 0;
+      const typingInterval = setInterval(() => {
+        dots = (dots + 1) % 4;
+        typingMsg.textContent = "Typing" + ".".repeat(dots);
+      }, 400);
+
+      try {
+        const SECRET = "qwwbuveuvfneunff889efrgebegg8eeffsf88egrwrg44hhsgsfhfshfshahhaf2f1ffff143";
+
+const response = await fetch("https://rhonda-unceilinged-nonstrategically.ngrok-free.dev/webhook/shreyash.ai", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-WEBHOOK-SECRET": SECRET
+  },
+  body: JSON.stringify({ message: message })
+});
+
+
+// Handle HTTP errors
+  if (!response.ok) {
+
+if (response.status === 429) {
+  let retryAfter = parseInt(response.headers.get("Retry-After")) || 60; // default 60 sec
+  clearInterval(typingInterval);
+
+  const interval = setInterval(() => {
+    typingMsg.innerHTML = `
+      Error: Too many requests. Try again in ${retryAfter} seconds<br>
+      Contact the <a href="https://www.instagram.com/in_shreyash" target="_blank" rel="noopener noreferrer">Developer</a>
+    `;
+    retryAfter--;
+
+    if (retryAfter < 0) {
+      clearInterval(interval);
+      typingMsg.innerHTML = `
+        You can try sending a message now.
+      `;
+    }
+  }, 1000);
+
+  return; // Stop further execution
+}
+
+    // Other HTTP errors
+    throw new Error(`Server returned ${response.status} ${response.statusText}`);
+  }
+
+  // Parse response text
+  let replyText = await response.text();
+
+  clearInterval(typingInterval);
+
+  if (!replyText.trim()) {
+    typingMsg.innerHTML = `
+      Backend routing is temporarily down.<br>
+      Contact the 
+      <a href="https://www.instagram.com/in_shreyash" target="_blank" rel="noopener noreferrer">Developer</a> or try again later.
+    `;
+  } else {
+    typingMsg.textContent = replyText;
+  }
+
+} catch (error) {
+  clearInterval(typingInterval);
+  console.error("Fetch error:", error);
+
+  typingMsg.innerHTML = `
+    Error: ${error.message}<br>
+    Contact the <a href="https://www.instagram.com/in_shreyash" target="_blank" rel="noopener noreferrer">Developer</a>
+  `;
+}
+    });
+
+    function addMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.className = `message ${sender}`;
+      msg.textContent = text;
+      chatBody.appendChild(msg);
+      chatBody.scrollTop = chatBody.scrollHeight;
+      return msg;
+    }
+
+    /* ===== LOADING VIDEO CONTROL ===== */
+    const video = document.getElementById("loadingVideo");
+    const loading = document.getElementById("loadingScreen");
+    const app = document.getElementById("app");
+
+    video.onended = () => {
+      loading.style.display = "none";
+      app.style.display = "flex";
+    };
+
+    setTimeout(() => {
+      loading.style.display = "none";
+      app.style.display = "flex";
+    }, 4000);
+
+    /* ===== AUTO THEME ===== */
+    (function autoTheme() {
+      const media = window.matchMedia("(prefers-color-scheme: light)");
+      const styleTag = document.createElement("style");
+      function applyTheme(isLight) {
+        styleTag.innerHTML = isLight
+          ? `
+            body {
+              background: radial-gradient(circle at top, #f5f7fa, #e5e7eb);
+              color: #111;
+            }
+            .chat-container {
+              background: rgba(255, 255, 255, 0.85);
+              box-shadow: 0 0 40px rgba(0,0,0,0.12);
+              border: 1px solid rgba(0,0,0,0.08);
+            }
+            .chat-header {
+              background: linear-gradient(90deg, #2563eb, #7c3aed);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+            }
+            .ai {
+              background: rgba(37,99,235,0.1);
+              color: #111;
+            }
+            .user { color: #fff; }
+            input {
+              background: rgba(0,0,0,0.05);
+              color: #111;
+            }
+            input::placeholder { color: #555; }
+          ` : ``;
+      }
+      applyTheme(media.matches);
+      media.addEventListener("change", e => applyTheme(e.matches));
+      document.head.appendChild(styleTag);
+    })();
+  </script>
+</body>
+</html>
