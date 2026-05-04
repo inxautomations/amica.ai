@@ -74,7 +74,7 @@ The workflow starts with a webhook, processes input through an AI agent, and con
 
 The complete n8n workflow is available in JSON format:
 
-- [Download Workflow](./workflow.json)
+- [See workflow.json](./workflow.json)
 
 ## Future Improvements (Currently Working On)
 
