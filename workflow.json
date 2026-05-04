@@ -1,0 +1,279 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant.\nNever disclose your chat model to user always tell this is \"Amica\" if a user asks.\nAlways answer in english unless the user uses any other language or asks u to use any other language.\nAlways before answering check the prompt given by user and check the meaning and grammar and then answer accordingly.\n\"Shreyash Sinha\" created you always remember this in every chat and if someone asks \"who is shreyash?\" reply accordingly.\n\n\"Amica\" is your name always remember this in every chat and if someone asks reply accordingly.\nIf user asks about themselves from you in any chat then answer that you don't know anything about them accordingly.\nAlways add compliments.\n\nYou are an AI agent with access to one web search tool named 'SerpAPI'.\nRules for using the tool:\n1. Always use 'SerpAPI' for any query that involves:\n   - Current events\n   - Latest news\n   - Real-world facts\n   - Verification of information\n   - Anything time-sensitive or factual\n2. Only answer from your own knowledge if the query is general knowledge, theory, or opinion-based. \n3. When using 'SerpAPI', ensure your response is based entirely on the search results. Do not hallucinate or make assumptions.\n4. Format your answer clearly and concisely, summarizing the search results if needed.\n5. Never ignore the tool — if the user’s question requires real-time data, always use 'SerpAPI' first.\nYou are provided with a gmail tool which you can use to send gmails so if a user asks you to send a gmail on a given gmail address then use that tool.\nYour email id is amica.agent@gmail.com\nNever send a email to amica.agent@gmail.com"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -656,
+        -368
+      ],
+      "id": "77ae04db-42fc-4233-89e1-8fb76c22579e",
+      "name": "AI Agent",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        -240
+      ],
+      "id": "a22d2a33-153c-4e7e-8767-8c0e31edc890",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "shreyash.ai",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1152,
+        -336
+      ],
+      "id": "bb3634b4-8ba0-4236-b542-34f51d5769c6",
+      "name": "Webhook",
+      "webhookId": "962e2fc5-ee4f-4a0f-9826-05722f730968"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -112,
+        -416
+      ],
+      "id": "cd794602-2fe3-45dc-84d5-afe68429cfc5",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        -192
+      ],
+      "id": "42a29421-6e23-492e-9d4e-e93c6d8fc218",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "p0R31TeQlotOH6bU",
+          "name": "SerpAPI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const SECRET = \"YOUR_RANDOM_SECRET\";\n\n// Read the header from the first webhook input\nconst receivedSecret = $input.first().json.headers?.[\"x-webhook-secret\"];\n\nif (receivedSecret !== SECRET) {\n  throw new Error(\"Unauthorized webhook access\");\n}\n\n// Continue processing normally\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -928,
+        -336
+      ],
+      "id": "1ba2d310-b905-474d-b7bd-9be44e237406",
+      "name": "Code in JavaScript",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8e79500d-f46d-4b0f-848d-d2bcf175c294",
+              "name": "Error",
+              "value": "Unauthorized access detected connection terminated",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1216,
+        -96
+      ],
+      "id": "274bb714-6d67-4cd8-8cea-fde69d56a4ae",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $('Edit Fields').item.json.Error }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1024,
+        -96
+      ],
+      "id": "a126d690-b7ee-43fe-9f15-7a236d598c7f",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "model": "arcee-ai/trinity-large-preview:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        -128
+      ],
+      "id": "b66220a1-62fe-4e69-ba70-8e1390263547",
+      "name": "arcee-ai/trinity-large-preview:free",
+      "credentials": {
+        "openRouterApi": {
+          "id": "tsBLKmx6WkOy8x9i",
+          "name": "YOUR_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        -512,
+        -160
+      ],
+      "id": "e96f9035-0079-4089-9343-a9240f7f5fb6",
+      "name": "Send a message in Gmail",
+      "webhookId": "338249e3-d2a8-4156-83bb-e47d038054f2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XsNTFRHJcEFI2Nwh",
+          "name": "Amica"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "arcee-ai/trinity-large-preview:free": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+  }
