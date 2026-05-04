@@ -45,6 +45,9 @@ This project demonstrates how real-world automation systems can be built by inte
 ## Limitations
 
 * Webhook Secret is publicly accessible and may be misused
+* No persistent memory implemented for the AI agent  
+* The system does not retain previous user context between requests  
+* This is due to local resource constraints and to keep the workflow lightweight  
 * No authentication or rate limiting implemented yet
 * System is in a prototype stage
 
@@ -73,4 +76,7 @@ The complete n8n workflow is available in JSON format:
 
 - [Download Workflow](./workflow.json)
 
-This allows full inspection of the logic and structure used in the system.
+## Future Improvements (Currently Working On)
+
+- Implement session-based or persistent memory for better context retention  
+- Optimize resource usage to support memory without affecting system performance  
