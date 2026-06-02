@@ -137,9 +137,10 @@
       box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.4);
     }
 
-    button {
-      padding: 0 22px;
-      border-radius: 20px;
+        button {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
       border: none;
       cursor: pointer;
       font-weight: 600;
@@ -147,7 +148,15 @@
       color: #000;
       box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+
+    button i {
+      font-size: 18px;
+    }
+
 
     button:hover {
       transform: translateY(-1px);
